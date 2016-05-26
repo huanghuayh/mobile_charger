@@ -213,11 +213,6 @@ public class TSPGui extends JFrame {
   //    btnExport.addActionListener(statisticsExportor);
   //    parent.gui.add(btnExport);
       
-      //////////////////Create new button for automatic running
-//      JButton btnAutomaticRun=new JButton("AutomaticRun");
-//      AutomaticRunner automaticRunner=new AutomaticRunner(parent); 
-//      btnAutomaticRun.addActionListener(automaticRunner);
-//      parent.gui.add(btnAutomaticRun);
 
       /////////////////Create new button for automatic one run
       JButton btnAutomaticOneRun=new JButton("Experiments");

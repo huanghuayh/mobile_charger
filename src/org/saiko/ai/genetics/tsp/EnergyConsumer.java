@@ -28,9 +28,6 @@ public class EnergyConsumer implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		// TODO Auto-generated method stub
-		
-		
-		
 		parent.charger.travel();
 		dDueTime=new double[parent.charger.dTravelTimeSeries.length];
 		dCoverageRatio =new double[parent.charger.dTravelTimeSeries.length];
@@ -47,7 +44,6 @@ public class EnergyConsumer implements ActionListener {
 					parent.cities[i].energy=0;
 					parent.cities[i].dDieTime+=parent.charger.dTravelTimeSeries[j];
 					parent.charger.nNumDeadNodes++;
-					
 //					if(i!=parent.charger.nTargetIDs[j]){
 //						parent.cities[i].dPIDPriority=parent.cities[i].compute_priority(parent.cities[i].energy);
 //						
@@ -102,6 +98,24 @@ public class EnergyConsumer implements ActionListener {
 
 
 	}
+
+	private void update_network(double[] travel_times, City[] parentNodes){
+
+
+		for(int i=0;i<travel_times.length;i++){
+			for(int j=0;j<parentNodes.length;j++){
+
+			}
+		}
+	}
+
+	private void consume_energy(City node, double time){
+
+
+	}
+
+
+
 	
 	private double get_consumption_rate(){
 		

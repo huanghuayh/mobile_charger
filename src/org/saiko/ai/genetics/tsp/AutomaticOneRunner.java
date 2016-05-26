@@ -116,7 +116,7 @@ public class AutomaticOneRunner implements ActionListener {
 					for(int j=0;j<nRunningTimes;j++){
 						
 						
-						event_change();
+						//event_change(); //This is used to simulate special events
 						
 						energyConsumer.actionPerformed(arg0);
 						
