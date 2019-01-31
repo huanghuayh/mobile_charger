@@ -46,6 +46,8 @@
 
 package org.saiko.ai.genetics.tsp;
 
+import org.saiko.ai.genetics.tsp.experiment.MultiExperiment;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -63,6 +65,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
 
 /**
  * @author Dusan Saiko (dusan@saiko.cz)
@@ -88,7 +91,7 @@ public class TSPGui extends JFrame {
    /**
     * Menu handler class
     */
-   protected TSPMenu menu;
+   public TSPMenu menu;
    
    /**
     * virtual coordinates of the city maps 
@@ -219,7 +222,12 @@ public class TSPGui extends JFrame {
       AutomaticOneRunner automaticOneRunner=new AutomaticOneRunner(parent); 
       btnAutomaticOneRun.addActionListener(automaticOneRunner);
       parent.gui.add(btnAutomaticOneRun);
-      
+
+
+       JButton btnMultiExp=new JButton("multi-exp");
+       MultiExperiment multiExperiment =new MultiExperiment(parent);
+       btnMultiExp.addActionListener(multiExperiment);
+       parent.gui.add(btnMultiExp);
       
       
 //      if(parent.bestCost<1000){

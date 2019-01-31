@@ -30,12 +30,32 @@ public class SDTScheduler {
 		 }
 		
 
+		traveling_graph.update_edge_weight(ndestination);
 	    int[] route=traveling_graph.find_route( nstartpoint,  ndestination);
 		
 		return route;
 	}
-	
-	
+
+	public int[] find_next_charging_time(int Index,double dThreshold){
+
+		int ntarget=cluster_priority.find_target(Index);
+
+
+		int nstartpoint=traveling_graph.find_lstbyid(Index);
+		int ndestination=traveling_graph.find_lstbyid(ntarget);
+
+		try{if(-1==nstartpoint||-1==ndestination){throw new IDNotContainException();}
+		}catch(IDNotContainException ex){//Process message however you would like
+			System.out.println("problem occurs when searching for target node");
+			System.exit(0);
+		}
+
+
+		traveling_graph.update_edge_weight_charging_time(ndestination);
+		int[] route=traveling_graph.find_route( nstartpoint,  ndestination);
+
+		return route;
+	}
 	
 
 	

@@ -93,15 +93,27 @@ public class TSPConfiguration {
    
    
    // The initial energy of each node
-   
+   ///////////////////////////////////////////////////////////////
+   //THE relation between these quantities and real life standard units
+   // energy consumption rate 0.12 w is equal to 20
+   // battery capacity 10000J is equal to 1000
+   // traveling speed 0.35 m/s is equal to 1200
+   //time 120000/49 seconds is equal to 1
+   // distance 1000 meter is equal to 1400
+   ///////////////////////////////////////////////
+
    
    public int nMaxEnergy=1000;
    
    public int nEnergyInit=nMaxEnergy;
    
    public double nConsumptionRange=50;
-   
-   public double dDEFAULTCONSUMPTIONRATE=60;
+
+   public double CHARGER_SPEED=1201.0;
+
+   public double dDEFAULTCONSUMPTIONRATE=60.0;
+
+   public double dCHARGINGRATE=2500.0;
    
    public int nWaitTime=210;
    
@@ -128,26 +140,27 @@ public class TSPConfiguration {
    
    
 	public enum AlgorithmName{
-		MRF("MRF"),
+//		MRF("MRF"),
 	//	MRFSD("MRFSD"),
 	//	MRFG("MRFG"),
 	//	MRFI("MRFI"),
 		
 	//	Route("ROUTE"),
 	//	Feedback("FEEDBACK"),
-	//	FeedbackHorizon("FEEDBACKHORIZON"),
+		FeedbackHorizon("FEEDBACKHORIZON"),
 	//	FeedbackPriority("FEEDBACKPRIORITY"),
 		TSP("TSP"),
 	//	FeedbackEDF("FEEDBACKEDF"),
 		
 		
-	//	MWF0("MWF0"),
+//		MWF0("MWF0"),
 		MWF("MWF"),
-		MWFI("MWF-I"),
-	//	MWF05("MWF05"),
+//		MWFI("MWF-I"),
+//		MWF05("MWF05"),
 	//	MWF08("MWF08"),
 	//	MWF1("MWF1");
-		SDT("SDT")
+		SDT("SDT"),
+//       SDTCHARGING("SDT_CHARGING")
 		;
 
 		

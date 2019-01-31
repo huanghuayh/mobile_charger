@@ -16,10 +16,17 @@ import org.apache.tools.ant.types.Path;
 import org.saiko.ai.genetics.tsp.TSPConfiguration.AlgorithmName;
 
 import algorithms.Mergesort;
+import org.saiko.ai.genetics.tsp.state_analysis.CurrentState;
 
 public class AutomaticOneRunner implements ActionListener {
 	TSP tspParent;
 	EnergyConsumer energyConsumer;
+	CurrentState networkState;
+
+
+
+
+
 	int nExpTimes;
 	int nRunningTimes;
 	int nEventID;
@@ -27,7 +34,6 @@ public class AutomaticOneRunner implements ActionListener {
 	boolean bEventTimeRecorded=false;
 	
 	boolean bEventRecovered=false;
-	
 	double dEventStartTime;
 	double dEventEndTime;
 	
@@ -55,28 +61,38 @@ public class AutomaticOneRunner implements ActionListener {
 	
 	String TransientResponseOutput="";
 	int nTransientIndex;
-	
+
+	boolean IS_AUTOMATIC=true;
 	
 	public AutomaticOneRunner(TSP parent){
 		tspParent=parent;
-		
+
 	}
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		// TODO Auto-generated method stub
 
-		String input =  JOptionPane.showInputDialog("Number of experiment rounds","10000");
-		nRunningTimes=Integer.parseInt(input);
-		String expNum=JOptionPane.showInputDialog("Number of Speeds","3");
-		nExpTimes=Integer.parseInt(expNum);
+        if(!IS_AUTOMATIC){
+            String input =  JOptionPane.showInputDialog("Number of experiment rounds","10000");
+            nRunningTimes=Integer.parseInt(input);
+            String expNum=JOptionPane.showInputDialog("Number of Speeds","3");
+            nExpTimes=Integer.parseInt(expNum);
+            input =  JOptionPane.showInputDialog("ID of event","0");
+            nEventID=Integer.parseInt(input);
+
+		}
+		else {
+			nRunningTimes=50000;
+			nExpTimes=1;
+			nEventID=0;
+		}
+
+
+		networkState=new CurrentState(tspParent.cities, tspParent.configuration.nMaxEnergy,tspParent);
+
 		
-		input =  JOptionPane.showInputDialog("ID of event","0");
-		nEventID=Integer.parseInt(input);
-		
-		
-		
-		double speed=2402;
-		//double speed=1201;
+		double speed=tspParent.configuration.CHARGER_SPEED;
+//		speed=speed/2;
 		for(int i=0;i<nExpTimes;i++){
 			
 			
@@ -95,7 +111,8 @@ public class AutomaticOneRunner implements ActionListener {
 			for(AlgorithmName n: AlgorithmName.values()){
 
 				tspParent.charger=null;
-				tspParent.charger=new Charger(tspParent,tspParent.nodeGrouper,n.name);			
+				tspParent.charger=new Charger(tspParent,tspParent.nodeGrouper,n.name);
+
 				tspParent.charger.dDueTimeData=new double[nRunningTimes];
 				nDuetimeDataIndex=0;
 				dTravelTimeData=new double[nRunningTimes];
@@ -125,32 +142,35 @@ public class AutomaticOneRunner implements ActionListener {
 						
 						record_event_end_time();
 
-						if(tspParent.charger.nTotalLife>nRunningTimes) break;
+						networkState.update_network(energyConsumer.get_travel_times(),energyConsumer.get_target());
+//						if(tspParent.charger.nTotalLife>nRunningTimes) break;
 	
 					}
 
+				networkState.output_data("./data/"+n.name+"/");
+
 				refresh_node();
 				
-				compute_statistics(n.name);
-				export_transient_data();
+			//	compute_statistics(n.name);
+			//	export_transient_data();
 				nAlgorithmIndex++;
 				
 			}
 
 			
-			export_coverage(CoverageOutput);
-			export_lateness(LatenessOutput);
-			export_efficiency(EfficiencyOutput);
-			export_energy(EnergyOutput);
+//			export_coverage(CoverageOutput);
+//			export_lateness(LatenessOutput);
+//			export_efficiency(EfficiencyOutput);
+//			export_energy(EnergyOutput);
 			
 			speed/=1.414;
 //			nAlgorithmIndex=1;
 //			CoverageOutput="";
 		}
-		export_string(SpeedData,"speed");
-		export_string(ScaleCoverageOutput,"scale_coverage");
-		export_string(ScaleTardinessOutput,"scale_tardiness");
-		export_string(ScaleEfficiencyOutput,"scale_efficiency");
+//		export_string(SpeedData,"speed");
+//		export_string(ScaleCoverageOutput,"scale_coverage");
+//		export_string(ScaleTardinessOutput,"scale_tardiness");
+//		export_string(ScaleEfficiencyOutput,"scale_efficiency");
 		
 		tspParent.gui.createCityMap(false);
 		

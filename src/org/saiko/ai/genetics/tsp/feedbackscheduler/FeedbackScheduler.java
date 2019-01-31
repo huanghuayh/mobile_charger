@@ -134,10 +134,10 @@ public class FeedbackScheduler {
 
 				if(i!=nIndex){
 					
-					if(parentTSP.charger.dDistanceMatrix[nIndex][i]<parentTSP.configuration.DEFAULTHORIZON){
+					if(parentTSP.charger.dDistanceMatrix[nIndex][i]<dHorizon){
 					//if(parentTSP.charger.dDistanceMatrix[nIndex][i]<dHorizon){
 						double dEarliness=parentTSP.cities[i].energy/parentTSP.cities[i].consumptionRate-parentTSP.charger.dDistanceMatrix[nIndex][i]/parentTSP.charger.dVelocity;
-					//double dEarliness=parentTSP.cities[i].energy/parentTSP.cities[i].consumptionRate;
+//					double dEarliness=parentTSP.cities[i].energy/parentTSP.cities[i].consumptionRate;
 					//	double dEarliness=parentTSP.cities[i].energy-5;			
 								
 						if(dEarliness<0){
@@ -192,12 +192,12 @@ public class FeedbackScheduler {
 		
 		
 		
-		if(true==bRescue){
+		if(bRescue){
 			return nTempIndex;	
 		}else{
 			
 			double dWeight=0;
-			dTempRatio=Double.MIN_VALUE;
+			dTempRatio=-1;
 			nTempIndex=-1000;
 			
 			for(int i=0;i<parentTSP.cities.length;i++){
@@ -318,18 +318,19 @@ public class FeedbackScheduler {
 //				nNodeNumber+=(dClusterSize-parentTSP.charger.dDistanceMatrix[nTarget][i])/dClusterSize;
 
 
-				weight=(parentTSP.charger.dDistanceMatrix[i][nStart]-parentTSP.charger.dDistanceMatrix[nTarget][i])/parentTSP.charger.dDistanceMatrix[i][nStart];
+//				weight=(parentTSP.charger.dDistanceMatrix[i][nStart]-parentTSP.charger.dDistanceMatrix[nTarget][i])/parentTSP.charger.dDistanceMatrix[i][nStart];
 				
 //				dLocalEnergy+=weight*(parentTSP.configuration.nMaxEnergy-parentTSP.cities[i].energy
 //						
 //						+parentTSP.cities[i].dDieTime*5000);
-				dLocalEnergy+=weight*(parentTSP.configuration.nMaxEnergy-parentTSP.cities[i].energy);
-				
-				if(parentTSP.cities[i].energy-dDistance/parentTSP.charger.dVelocity<0){
-					dLocalEnergy+=weight*15000;
-				}
-//				
-				nNodeNumber+=weight;
+//				dLocalEnergy+=weight*(parentTSP.configuration.nMaxEnergy-parentTSP.cities[i].energy);
+				dLocalEnergy+=(parentTSP.configuration.nMaxEnergy-parentTSP.cities[i].energy);
+
+//				if(parentTSP.cities[i].energy-dDistance/parentTSP.charger.dVelocity<0){
+//					dLocalEnergy+=weight*15000;
+//				}
+////
+//				nNodeNumber+=weight;
 				
 			}
 		}

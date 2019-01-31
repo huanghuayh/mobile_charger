@@ -105,19 +105,26 @@ public class TSP  {
     * available map files
     */
    protected final static String mapFiles[]={
-         "cities_020",    
-         "cities_050",    
-         "cities_100",    
-         "cities_150",    
-         "cities_192", 
+//         "cities_020",
+//         "cities_050",
+//         "cities_100",
+//         "cities_150",
+//         "cities_192",
          null,
          "square_15x15",
-         "triangle_15x15",
-         "circle_150",
-         "circle_120",
-         "full_circle_305",
-         "spiral_263",
-         "line_100",
+           "square_10_10",
+           "square_500",
+           "square_400",
+//           "square_10_10",
+           "square_300",
+           "square_200",
+           "square_10_10",
+//         "triangle_15x15",
+//         "circle_150",
+//         "circle_120",
+//         "full_circle_305",
+//         "spiral_263",
+//         "line_100",
    };
    
    /**
@@ -208,7 +215,7 @@ public class TSP  {
    public Charger charger;
    
    public NodeGrouper nodeGrouper;
-   public class NodeGrouperParameter{
+   public class  NodeGrouperParameter{
 	   public int nMinX=10000000, nMaxX=0, nMinY=10000000, nMaxY=0;
 	   public int nNumGroup;
 	   public int nCostFuncID;
@@ -340,7 +347,7 @@ public class TSP  {
    /**
     * Gui for TSP
     */
-   TSPGui gui;
+   public TSPGui gui;
    
    /**
     * show the window
@@ -360,7 +367,7 @@ public class TSP  {
     * starts in new thread
     * @see TSPMenu#actionStart(ActionEvent)
     */
-   protected void run() {
+   public void run() {
       try {
          //initialize variables
          generation=0;

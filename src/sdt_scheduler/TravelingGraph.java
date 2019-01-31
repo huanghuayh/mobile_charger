@@ -46,7 +46,7 @@ public class TravelingGraph {
 		
 		DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(graph);
 		
-		update_edge_weight( ndestination);
+		//update_edge_weight( ndestination);
 	    dijkstra.execute(nodes.get(nstartpoint));
 	    LinkedList<Vertex> path = dijkstra.getPath(nodes.get(ndestination));
 	    
@@ -81,45 +81,47 @@ public class TravelingGraph {
 						double time_spent=(parentTSP.cities[nodes.get(j).nodeid].energy)/parentTSP.configuration.dDEFAULTCONSUMPTIONRATE;
 						double travel_time=travel_distance/parentTSP.charger.dVelocity;
 						int cost=(int) (travel_time+time_spent);
+
+						double energy_income=((double)parentTSP.configuration.nMaxEnergy-(double)parentTSP.cities[nodes.get(j).nodeid].energy);
+						travel_time=travel_distance/parentTSP.charger.dVelocity;
+						double charging_time=((double)parentTSP.configuration.nMaxEnergy-(double)parentTSP.cities[nodes.get(j).nodeid].energy)/parentTSP.configuration.dCHARGINGRATE;
+						double energy_cost=(travel_time)*parentTSP.configuration.dDEFAULTCONSUMPTIONRATE*parentTSP.cities.length;
+						cost=(int) (energy_cost-energy_income);
 						Edge lane = new Edge(Integer.toString(i)+j,nodes.get(i), nodes.get(j),cost);//construct the directed edge to node i
 						edges.add(lane);
 					}
 				}
 			}	
 		}
-		
-		
-		
-//		for(int i=0;i<nodes.size();i++){
-//			for(int j=0;j<nodes.size();j++){
-//				
-////				int iid=nodes.get(i).nodeid;
-////				int jid=nodes.get(j).nodeid;
-//				
-//				double dist_dest1=parentTSP.charger.dDistanceMatrix[nodes.get(i).nodeid][nodes.get(ndestination).nodeid];
-//				double dist_dest2=parentTSP.charger.dDistanceMatrix[nodes.get(j).nodeid][nodes.get(ndestination).nodeid];
-//				
-//				if(dist_dest1>dist_dest2){
-//					double travel_distance=parentTSP.charger.dDistanceMatrix[nodes.get(i).nodeid][nodes.get(j).nodeid];
-//					
-//					if(travel_distance<MAXEDGEDISTANCE){
-//						double time_spent=(parentTSP.configuration.nMaxEnergy-parentTSP.cities[nodes.get(j).nodeid].energy)/parentTSP.configuration.dDEFAULTCONSUMPTIONRATE;
-//						double travel_time=travel_distance/parentTSP.charger.dVelocity;
-//						int cost=(int) (travel_time+time_spent);
-//						Edge lane = new Edge(Integer.toString(i)+j,nodes.get(i), nodes.get(j),cost);//construct the directed edge to node i
-//						edges.add(lane);
-//					}
-//
-//				}
-//			}	
-//		}
-		
-		
-		
 		graph = new Graph(nodes, edges);
 
 	}
-	
+
+	public void update_edge_weight_charging_time( int ndestination){
+		graph=null;
+		edges=null;
+		edges= new ArrayList<Edge>();
+
+		for(int i=0;i<nodes.size();i++){
+			for(int j=0;j<nodes.size();j++){
+				if(i!=j){
+					double travel_distance=parentTSP.charger.dDistanceMatrix[nodes.get(i).nodeid][nodes.get(j).nodeid];
+					if(travel_distance<MAXEDGEDISTANCE){
+						double energy_income=((double)parentTSP.configuration.nMaxEnergy-(double)parentTSP.cities[nodes.get(j).nodeid].energy);
+						double travel_time=travel_distance/parentTSP.charger.dVelocity;
+//						double charging_time=((double)parentTSP.configuration.nMaxEnergy-(double)parentTSP.cities[nodes.get(j).nodeid].energy)/parentTSP.configuration.dCHARGINGRATE;
+						double charging_time=0;
+						double energy_cost=(travel_time+charging_time)*parentTSP.configuration.dDEFAULTCONSUMPTIONRATE*parentTSP.cities.length;
+						int cost=(int) (energy_cost-energy_income);
+						Edge lane = new Edge(Integer.toString(i)+j,nodes.get(i), nodes.get(j),cost);//construct the directed edge to node i
+						edges.add(lane);
+					}
+				}
+			}
+		}
+		graph = new Graph(nodes, edges);
+
+	}
 	
 	public int find_lstbyid(int cityid){
 		for(int i=0;i<nodes.size();i++){

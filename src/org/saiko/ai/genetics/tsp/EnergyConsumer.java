@@ -37,9 +37,9 @@ public class EnergyConsumer implements ActionListener {
 			parent.charger.nNumDeadNodes=0;
 			for(int i=0;i<parent.cities.length;i++){
 				parent.cities[i].dTemporalConsumptionRate=((double)parent.cities[i].consumptionRate)*get_consumption_rate();
-			//	parent.cities[i].dTemporalConsumptionRate=((double)parent.cities[i].consumptionRate);
+				parent.cities[i].dTemporalConsumptionRate=((double)parent.cities[i].consumptionRate);
 				parent.cities[i].energy=parent.cities[i].energy-(int) 
-						(parent.cities[i].dTemporalConsumptionRate*parent.charger.dTravelTimeSeries[j]);
+						(parent.cities[i].dTemporalConsumptionRate*(parent.charger.dTravelTimeSeries[j]+parent.charger.dChargingTimeSeries[j]));
 				if(parent.cities[i].energy<=0){
 					parent.cities[i].energy=0;
 					parent.cities[i].dDieTime+=parent.charger.dTravelTimeSeries[j];
@@ -99,15 +99,13 @@ public class EnergyConsumer implements ActionListener {
 
 	}
 
-	private void update_network(double[] travel_times, City[] parentNodes){
-
-
-		for(int i=0;i<travel_times.length;i++){
-			for(int j=0;j<parentNodes.length;j++){
-
-			}
-		}
+	public double[] get_travel_times(){
+		return parent.charger.dTravelTimeSeries;
 	}
+	public int[] get_target(){
+		return parent.charger.nTargetIDs;
+	}
+
 
 	private void consume_energy(City node, double time){
 

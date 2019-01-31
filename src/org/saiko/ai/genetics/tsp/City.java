@@ -123,7 +123,7 @@ public class City {
    int nLife=0;
    
    /////////////////////////The group ID
-   int nGroupID=0;
+   public int nGroupID=0;
    
    //////////////////////////The dying time/////////////////
    public double dDieTime=0;

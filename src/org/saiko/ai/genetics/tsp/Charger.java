@@ -14,11 +14,11 @@ public class Charger {
 	public City currentLocation;
 	public double dVelocity=(double) 1200;
 	public double dChargingRate=30;
-	public double dTravelTime;
 	public int nCityIndex=0;
 	public int nPreviousCity=0;
 	
 	public double[] dTravelTimeSeries;
+	public double[] dChargingTimeSeries;
 	public int[] nTargetIDs;
 
 	
@@ -49,6 +49,8 @@ public class Charger {
 	public double[][][] dGroupCoverage;
 	int nNumGroup;
 	public int[] nInsertIndex;
+	public double[] dChargingTime;
+	public boolean is_charging_time=false;
 	
 
 
@@ -94,6 +96,9 @@ public class Charger {
 	//	nGroupVisitTimes=new double[nNumGroup];
 		
 		AlgoName=algoName;
+		if(AlgoName=="SDT_CHARING"||AlgoName=="TSP_CHARGING"||AlgoName=="MWF"||AlgoName=="MWF-I"||AlgoName=="MRF"){
+			is_charging_time=true;
+		}
 		
 	
 	}
@@ -122,38 +127,53 @@ public class Charger {
 	
 	
 	
-	public void travel(){	
-		
+	public void travel(){
+
 		nPreviousCity=nCityIndex;
 		selectnext();
-		//City nextLocation=parentCity[nCityIndex];
-		double dDistance;
-
-		
-		if(null==nInsertIndex) {
-			dDistance = dDistanceMatrix[nPreviousCity][nCityIndex];
-			
-		}
-		else {
-			dDistance=dDistanceMatrix[nPreviousCity][nInsertIndex[0]];
-			for (int i=1;i<nInsertIndex.length-1;i++){
-				dDistance+=dDistanceMatrix[nInsertIndex[i]][nInsertIndex[i+1]];
-			}
-			dDistance+=dDistanceMatrix[nInsertIndex[nInsertIndex.length-1]][nCityIndex];
-			
-		}
-		dTravelTime=dDistance/dVelocity;
-			
-
-		dTotalDistance+=dDistance;
-//		dTotalTime+=dTravelTime;
-		
 		currentLocation=parentCity[nCityIndex];
-		////////////////Modification for the distance///////////////
-		//dTravelTime=dTravelTime/100;
+
+
+		find_traveltime_series();
+
+		if(is_charging_time){
+
+			dChargingTimeSeries=find_charging_time();
+		}else{
+			dChargingTimeSeries=new double[dTravelTimeSeries.length];
+		}
 		
-//		currentLocation=nextLocation;
-		
+	}
+
+
+	private double[] find_charging_time(){
+
+		double[] charging_time_series;
+		if(null==nInsertIndex){
+			charging_time_series=new double[1];
+			charging_time_series[0]=(double) (parentTSP.configuration.nMaxEnergy-parentTSP.cities[nCityIndex].energy);
+			charging_time_series[0]=charging_time_series[0]/parentTSP.configuration.dCHARGINGRATE;
+		}
+		else{
+
+			charging_time_series=new double[nInsertIndex.length+1];
+
+
+			for(int i=0;i<nInsertIndex.length;i++){
+				charging_time_series[i]=(double) (parentTSP.configuration.nMaxEnergy-parentTSP.cities[nInsertIndex[i]].energy);
+				charging_time_series[i]=charging_time_series[i]/parentTSP.configuration.dCHARGINGRATE;
+			}
+
+			charging_time_series[charging_time_series.length-1]=(double) (parentTSP.configuration.nMaxEnergy-parentTSP.cities[nCityIndex].energy);
+			charging_time_series[charging_time_series.length-1]=charging_time_series[charging_time_series.length-1]/parentTSP.configuration.dCHARGINGRATE;
+
+		}
+
+		return charging_time_series;
+	}
+
+
+	private void find_traveltime_series(){
 		if(null==nInsertIndex){
 			dTravelTimeSeries=new double[1];
 			dTravelTimeSeries[0]=dDistanceMatrix[nPreviousCity][nCityIndex]/dVelocity;
@@ -164,26 +184,20 @@ public class Charger {
 		else{
 			dTravelTimeSeries=new double[nInsertIndex.length+1];
 			dTravelTimeSeries[0]=dDistanceMatrix[nPreviousCity][nInsertIndex[0]]/dVelocity;
-			
+
 			nTargetIDs=new int[nInsertIndex.length+1];
 			nTargetIDs[0]=nInsertIndex[0];
 
-			
 			for (int i=1;i<nInsertIndex.length;i++){
 				dTravelTimeSeries[i]=dDistanceMatrix[nInsertIndex[i-1]][nInsertIndex[i]]/dVelocity;
 				nTargetIDs[i]=nInsertIndex[i];
 
 			}
-			
+
 			dTravelTimeSeries[nInsertIndex.length]=
 					dDistanceMatrix[nInsertIndex[nInsertIndex.length-1]][nCityIndex]/dVelocity;
 			nTargetIDs[nInsertIndex.length]=nCityIndex;
-
-			
-			
 		}
-		
-		
 	}
 	
 	private void selectnext(){
@@ -213,13 +227,12 @@ public class Charger {
 		}
 
 		else if ("MWF"==AlgoName){
-			double dAlpha=0.4;
+			double dAlpha=0.01;
 			nCityIndex=dynamicScheduler.MWF_find_next(nCityIndex,dAlpha);
 
 		}
 		else if ("MWF-I"==AlgoName){
 			double dAlpha=0.4;
-			
 			int current_location=nCityIndex;
 			nCityIndex=dynamicScheduler.MWF_find_next(nCityIndex,dAlpha);
 			dynamicScheduler.find_insert(current_location,nCityIndex);
@@ -227,35 +240,25 @@ public class Charger {
 
 		else if ("TSP"==AlgoName){
 			if(null==staticScheduler){
-				
 				staticScheduler=new StaticScheduler(parentTSP);
-				
 			}
-			
 			nCityIndex=staticScheduler.find_next(nCityIndex);
 		}
 		else if("ROUTE"==AlgoName){
 			nRoute=RouteScheduler.find_next(nCityIndex, DueThreshold, parentCity, k);
 			nCityIndex=nRoute[nRoute.length-1];
-			
-			
 			nInsertIndex=new int[nRoute.length-2];
 			
 			for(int i=0;i<nRoute.length-2;i++){//take special care: the first index is the current location.
 				nInsertIndex[i]=nRoute[i+1];
 			}
-			
-
 		}
 		
 		else if("FEEDBACK"==AlgoName){
 			if(null==feedbackScheduler){
 				feedbackScheduler=new FeedbackScheduler(parentTSP);
 			}
-			
 			int [] nRouteFeedback=feedbackScheduler.find_next(nCityIndex, DueThreshold);
-			
-			
 			if(nRouteFeedback.length>1){
 				nCityIndex=nRouteFeedback[nRouteFeedback.length-1];
 								
@@ -355,8 +358,31 @@ public class Charger {
 			}
 
 		}
-		
-		
+
+
+		else if("SDT_CHARGING"==AlgoName){
+			if(null==sdt_scheduler){
+				sdt_scheduler=new SDTScheduler(parentTSP);
+			}
+
+			int [] nRouteFeedback=sdt_scheduler.find_next_charging_time(nCityIndex, DueThreshold);
+
+
+			if(nRouteFeedback.length>1){
+				nCityIndex=nRouteFeedback[nRouteFeedback.length-1];
+				nInsertIndex=new int[nRouteFeedback.length-1];
+				for(int i=0;i<nRouteFeedback.length-1;i++){//take special care: the first index is the current location.
+					nInsertIndex[i]=nRouteFeedback[i];
+				}
+			}
+			else{
+				nInsertIndex=null;
+				nCityIndex=nRouteFeedback[0];
+			}
+
+		}
+
+
 		
 	}
 	
@@ -643,31 +669,23 @@ public class Charger {
 			int nTempIndex=0;
 			double dWeight;
 			double dDueTime;
-		//	double dNormWaitTime;
-		//	double dDieWeight=40;
-			
 			for(int i=0;i<parentCity.length;i++){
 				dDueTime=parentCity[i].energy/parentCity[i].consumptionRate;
 				if(dDueTime<dThreshold){
 					if(i!=nIndex){
-					//	dNormWaitTime=parentCity[i].dWaitTime*parentCity[i].consumptionRate;
-						
-						
-						//dWeight=(1001-parentCity[i].energy+dDieWeight*parentCity[i].dDieTime)/dDistanceMatrix[nIndex][i];
 						dWeight=(parentCity[i].dWaitTime*parentCity[i].dTemporalConsumptionRate)/dDistanceMatrix[nIndex][i];
-						//dWeight=(1001-parentCity[i].energy)*(1001-parentCity[i].energy)/dDistanceMatrix[nIndex][i];
-						//dWeight=(1001-parentCity[i].energy+dDieWeight*parentCity[i].dDieTime)/dDistanceMatrix[nIndex][i]/dGroupEnergy[parentCity[i].nGroupID];
 						if(dWeight>dTempRatio){
 							nTempIndex=i;
 							dTempRatio=dWeight;
 						}
-						
-						
-					}		
+					}
 				}
 			}					
 			return nTempIndex;	
 		}
+
+
+
 		
 		
 		public void find_insert(int nIndex,int nTarget){
@@ -726,6 +744,28 @@ public class Charger {
 			}		
 			return nTempIndex;	
 		}
+
+
+		public int MWF_find_next_charging(int nIndex,double dAlpha){
+
+
+
+			double dTempRatio=100000;
+			int nTempIndex=0;
+
+			for(int i=0;i<parentCity.length;i++){
+				if(i!=nIndex){
+					double dWeight;
+					dWeight=dAlpha*dDistanceMatrix[nIndex][i]/dVelocity+(1-dAlpha)*parentCity[i].energy/parentCity[i].consumptionRate;
+					if(dWeight<dTempRatio){
+						nTempIndex=i;
+						dTempRatio=dWeight;
+					}
+				}
+
+			}
+			return nTempIndex;
+		}
 		
 
 		
@@ -735,6 +775,7 @@ public class Charger {
 	public class StaticScheduler{
 		TSP parentTSP;
 		int[] nStaticLst;
+		double loop_time;
 		
 		public StaticScheduler(TSP parentTSP){
 			this.parentTSP=parentTSP;
@@ -745,6 +786,11 @@ public class Charger {
 		private void construct_lst(){
 			
 			int[] nTempLst=new int[parentTSP.cities.length];
+
+
+			if(parentTSP.bestChromosome==null){
+				parentTSP.run();
+			}
 			
 			
 			for(int i=0;i<parentTSP.bestChromosome.cities.length;i++){
@@ -769,6 +815,20 @@ public class Charger {
 					}
 				}
 			}
+
+			loop_time=0.0;
+
+
+			int this_index=0;
+			int next_index=nStaticLst[this_index];
+
+			for(int i=0;i<nStaticLst.length;i++){
+				loop_time+=dDistanceMatrix[this_index][next_index]/dVelocity;
+				this_index=next_index;
+				next_index=nStaticLst[this_index];
+			}
+
+			System.out.println("loop time is "+Double.toString(loop_time));
 			
 			
 			
